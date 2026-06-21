@@ -79,46 +79,50 @@ export default function LandingPage() {
       <div className="glow-blob-purple top-[35%] right-[-200px] opacity-25" />
 
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#07090e]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-xl font-bold tracking-tight text-white uppercase font-sans">
-              Hari<span className="text-emerald-500">Tva</span>
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#07090e]/80 backdrop-blur-xl header-glow">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg font-extrabold tracking-tight text-white uppercase font-sans">
+              Hari<span className="text-emerald-400">Tva</span>
             </span>
+            <span className="hidden sm:inline-block text-[8px] text-emerald-400/60 font-bold uppercase tracking-widest border border-emerald-500/20 bg-emerald-500/5 px-2 py-0.5">OS</span>
           </div>
-          <nav className="hidden md:flex gap-8 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-            <a href="#stats" className="hover:text-emerald-400 transition-colors">Impact</a>
-            <a href="#simulator" className="hover:text-emerald-400 transition-colors">Simulations</a>
-            <a href="#toolkit" className="hover:text-emerald-400 transition-colors">Toolkit</a>
-            <a href="#faq" className="hover:text-emerald-400 transition-colors">FAQ</a>
+          <nav className="hidden md:flex gap-8 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <a href="#stats" className="hover:text-emerald-400 transition-colors duration-200">Impact</a>
+            <a href="#simulator" className="hover:text-emerald-400 transition-colors duration-200">Simulations</a>
+            <a href="#toolkit" className="hover:text-emerald-400 transition-colors duration-200">Toolkit</a>
+            <a href="#faq" className="hover:text-emerald-400 transition-colors duration-200">FAQ</a>
           </nav>
-          <Link href="/dashboard" className="btn-cyber-primary px-5 py-2.5 rounded-xl text-xs uppercase cursor-pointer">
+          <Link href="/dashboard" className="btn-cyber-primary px-5 py-2.5 text-[10px] uppercase cursor-pointer font-bold tracking-wider">
             Launch Platform
           </Link>
         </div>
       </header>
 
       {/* ── HERO SECTION ── */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-10 lg:py-16 flex items-center min-h-[calc(100vh-80px)]">
+      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-10 lg:py-16 flex items-center min-h-[calc(100vh-72px)]">
+        {/* Ambient emerald glow behind hero text area */}
+        <div className="absolute top-[15%] left-[5%] w-[500px] h-[500px] bg-emerald-500/[0.03] rounded-full blur-[120px] pointer-events-none z-0" />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           
           {/* Left Text & Stats Column */}
-          <motion.div className="lg:col-span-7 space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left z-20 w-full" variants={stagger} initial="hidden" animate="show">
-            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 text-emerald-400 rounded-full text-[10px] font-semibold tracking-wider uppercase">
+          <motion.div className="lg:col-span-7 space-y-6 flex flex-col items-center text-center z-20 w-full" variants={stagger} initial="hidden" animate="show">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/15 text-emerald-400 text-[10px] font-semibold tracking-wider uppercase">
               <Sparkles className="w-3 h-3" /> SUSTAINABLE FUTURE IN REAL TIME
             </motion.div>
 
-            <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold leading-[1.15] tracking-tight text-white font-sans uppercase">
+            <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold leading-[1.1] tracking-tight text-white font-sans uppercase">
               The human-centered <br />
               <span className="text-gradient-neon">carbon intelligence</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed mx-auto lg:mx-0 font-normal">
+            <motion.p variants={fadeUp} className="text-slate-400 text-xs sm:text-sm max-w-lg leading-relaxed mx-auto">
               An elegant ecosystem to measure, simulate, and lower your carbon impact. Integrate utility bills, run carbon forecasts, and synchronize with your personal footprint twin.
             </motion.p>
 
             {/* Premium Stats Summary Panel */}
-            <motion.div variants={fadeUp} className="glass-hud p-5 w-full max-w-lg mx-auto lg:mx-0 text-left relative overflow-hidden">
+            <motion.div variants={fadeUp} className="glass-hud p-5 w-full max-w-lg mx-auto text-left relative overflow-hidden">
               <div className="flex items-center justify-between pb-2.5 mb-3.5 border-b border-white/5">
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
                   Personal Carbon Status
@@ -144,11 +148,11 @@ export default function LandingPage() {
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center lg:justify-start pt-1.5 w-full">
-              <Link href="/dashboard" className="btn-cyber-primary px-6 py-3.5 rounded-xl text-xs uppercase flex items-center gap-2">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center pt-1.5 w-full">
+              <Link href="/dashboard" className="btn-cyber-primary px-6 py-3.5 text-xs uppercase flex items-center gap-2 font-bold tracking-wider">
                 Open Dashboard <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="#simulator" className="btn-cyber-secondary px-6 py-3.5 rounded-xl text-xs uppercase flex items-center justify-center">
+              <a href="#simulator" className="btn-cyber-secondary px-6 py-3.5 text-xs uppercase flex items-center justify-center font-semibold tracking-wider">
                 Run Simulation
               </a>
             </motion.div>

@@ -66,11 +66,93 @@
 }
 
 .high-contrast-mode {
-  --background: #000000;
-  --foreground: #ffffff;
-  --glass-bg: #111111;
-  --glass-border: #ffffff;
+  --background: #f5f7fa;
+  --foreground: #111827;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.1);
   --glass-border-hover: #10b981;
+  --glow-hud-panel: 0 4px 20px -6px rgba(0, 0, 0, 0.1);
+}
+
+.high-contrast-mode body,
+.high-contrast-mode html {
+  background-color: #f5f7fa !important;
+  color: #111827 !important;
+}
+
+.high-contrast-mode .bg-\[\#07090e\],
+.high-contrast-mode .bg-\[\#07090e\]\/80,
+.high-contrast-mode .bg-\[\#07090e\]\/85,
+.high-contrast-mode .bg-\[\#07090e\]\/50,
+.high-contrast-mode .bg-\[\#0c0e14\]\/90,
+.high-contrast-mode .bg-\[\#090b0f\],
+.high-contrast-mode .bg-\[\#0c0e14\],
+.high-contrast-mode .bg-black\/10,
+.high-contrast-mode .bg-black\/20,
+.high-contrast-mode .bg-black\/40 {
+  background-color: #f5f7fa !important;
+}
+
+.high-contrast-mode .text-white {
+  color: #111827 !important;
+}
+
+.high-contrast-mode .text-slate-300,
+.high-contrast-mode .text-slate-400,
+.high-contrast-mode .text-slate-500,
+.high-contrast-mode .text-slate-600 {
+  color: #4b5563 !important;
+}
+
+.high-contrast-mode .border-white\/5,
+.high-contrast-mode .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.high-contrast-mode .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.high-contrast-mode .glass-hud,
+.high-contrast-mode .glass-hud-cyan,
+.high-contrast-mode .glass-hud-purple {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.08) !important;
+}
+
+.high-contrast-mode .btn-cyber-secondary {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #111827 !important;
+}
+
+.high-contrast-mode .glow-blob-green,
+.high-contrast-mode .glow-blob-purple {
+  opacity: 0 !important;
+}
+
+.high-contrast-mode .grid-dots {
+  background-image: none !important;
+}
+.high-contrast-mode .grid-dots::before {
+  display: none !important;
+}
+
+/* Header accent glow line */
+.header-glow {
+  position: relative;
+}
+.header-glow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #10b981, transparent);
+  opacity: 0.4;
 }
 
 /* Resets & Core Layout */
