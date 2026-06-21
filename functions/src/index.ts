@@ -2,6 +2,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { z } from "zod";
 import { askGeminiPro, askGeminiVision } from "./gemini";
+import { calculateCarbonProfile } from "./carbonCalculator";
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
@@ -148,38 +149,7 @@ export const calculateCarbon = onRequest({ cors: true }, async (req, res) => {
 
     const data = parsed.data;
 
-    let transportEmissions = 0;
-    if (data.transport.carType === "ice") {
-      transportEmissions += (data.transport.carMiles * 0.4) / 30;
-    } else if (data.transport.carType === "ev") {
-      transportEmissions += (data.transport.carMiles * 0.12) / 30;
-    }
-    transportEmissions += (data.transport.transitMiles * 0.05) / 30;
-    transportEmissions += (data.transport.flightHours * 90) / 365;
-
-    const carbonPerKwh = 0.38;
-    const offsetMultiplier = (100 - data.electricity.renewablePct) / 100;
-    const electricityEmissions = (data.electricity.kwh * carbonPerKwh * offsetMultiplier) / 30;
-
-    const waterEmissions = (data.water.gallons * 0.003) / 30;
-
-    let foodEmissions = 5.5;
-    if (data.food.dietType === "vegan") foodEmissions = 2.0;
-    else if (data.food.dietType === "vegetarian") foodEmissions = 3.5;
-    else if (data.food.dietType === "balanced") foodEmissions = 5.5;
-    else if (data.food.dietType === "meat-heavy") foodEmissions = 8.5;
-
-    const shoppingEmissions = (data.shopping.spendAmount * 0.15) / 30;
-
-    let wasteEmissions = (data.waste.bags * 1.2) / 30;
-    if (data.waste.recycled) wasteEmissions *= 0.7;
-    if (data.waste.composted) wasteEmissions *= 0.8;
-
-    const dailyCarbon = parseFloat((transportEmissions + electricityEmissions + waterEmissions + foodEmissions + shoppingEmissions + wasteEmissions).toFixed(2));
-    const monthlyCarbon = parseFloat((dailyCarbon * 30).toFixed(2));
-    const annualCarbon = parseFloat(((dailyCarbon * 365) / 1000).toFixed(2));
-
-    const score = Math.max(10, Math.min(100, Math.round(100 - (dailyCarbon * 2.2))));
+    const { dailyCarbon, monthlyCarbon, annualCarbon, sustainabilityScore: score } = calculateCarbonProfile(data);
 
     if (user) {
       const activityRef = db.collection("activities").doc();
