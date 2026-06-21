@@ -99,62 +99,63 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO SECTION ── */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-24 flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-center">
-        <div className="flex flex-col items-center space-y-8 w-full max-w-4xl mx-auto z-20">
+      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-10 lg:py-16 flex items-center min-h-[calc(100vh-80px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           
-          <motion.div className="space-y-8 flex flex-col items-center w-full" variants={stagger} initial="hidden" animate="show">
+          {/* Left Text & Stats Column */}
+          <motion.div className="lg:col-span-7 space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left z-20 w-full" variants={stagger} initial="hidden" animate="show">
             <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 text-emerald-400 rounded-full text-[10px] font-semibold tracking-wider uppercase">
               <Sparkles className="w-3 h-3" /> SUSTAINABLE FUTURE IN REAL TIME
             </motion.div>
 
-            <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-white font-sans uppercase">
+            <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold leading-[1.15] tracking-tight text-white font-sans uppercase">
               The human-centered <br />
               <span className="text-gradient-neon">carbon intelligence</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed mx-auto font-normal">
+            <motion.p variants={fadeUp} className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed mx-auto lg:mx-0 font-normal">
               An elegant ecosystem to measure, simulate, and lower your carbon impact. Integrate utility bills, run carbon forecasts, and synchronize with your personal footprint twin.
             </motion.p>
 
             {/* Premium Stats Summary Panel */}
-            <motion.div variants={fadeUp} className="glass-hud p-6 w-full max-w-xl mx-auto text-left relative overflow-hidden">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/5">
-                <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+            <motion.div variants={fadeUp} className="glass-hud p-5 w-full max-w-lg mx-auto lg:mx-0 text-left relative overflow-hidden">
+              <div className="flex items-center justify-between pb-2.5 mb-3.5 border-b border-white/5">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
                   Personal Carbon Status
                 </span>
-                <span className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold uppercase">
+                <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold uppercase">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active Sync
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center sm:text-left">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-medium">Reduction Rate</span>
-                  <span className="text-xl font-bold text-white mt-1 block">45.2%</span>
+                  <span className="text-[9px] text-slate-500 block uppercase font-medium">Reduction Rate</span>
+                  <span className="text-lg font-bold text-white mt-1 block">45.2%</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-medium">Net Footprint</span>
-                  <span className="text-xl font-bold text-white mt-1 block">1.2 T/yr</span>
+                  <span className="text-[9px] text-slate-500 block uppercase font-medium">Net Footprint</span>
+                  <span className="text-lg font-bold text-white mt-1 block">1.2 T/yr</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-medium">Eco Rating</span>
-                  <span className="text-xl font-bold text-emerald-400 mt-1 block">Grade A</span>
+                  <span className="text-[9px] text-slate-500 block uppercase font-medium">Eco Rating</span>
+                  <span className="text-lg font-bold text-emerald-400 mt-1 block">Grade A</span>
                 </div>
               </div>
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center pt-2">
-              <Link href="/dashboard" className="btn-cyber-primary px-8 py-4 rounded-xl text-xs uppercase flex items-center gap-2">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center lg:justify-start pt-1.5 w-full">
+              <Link href="/dashboard" className="btn-cyber-primary px-6 py-3.5 rounded-xl text-xs uppercase flex items-center gap-2">
                 Open Dashboard <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="#simulator" className="btn-cyber-secondary px-8 py-4 rounded-xl text-xs uppercase flex items-center justify-center">
+              <a href="#simulator" className="btn-cyber-secondary px-6 py-3.5 rounded-xl text-xs uppercase flex items-center justify-center">
                 Run Simulation
               </a>
             </motion.div>
           </motion.div>
 
-          {/* Centered Earth Globe */}
-          <div className="flex justify-center items-center relative py-6 z-10 w-full">
+          {/* Right Globe Column */}
+          <div className="lg:col-span-5 flex justify-center items-center relative py-4 lg:py-0 z-10 w-full max-w-[340px] lg:max-w-none mx-auto">
             <ThreeGlobe />
           </div>
         </div>
