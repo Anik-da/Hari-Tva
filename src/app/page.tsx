@@ -82,9 +82,6 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-white/5 bg-[#07090e]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 py-5 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-sm">
-              <Leaf className="text-emerald-500 w-5 h-5" />
-            </div>
             <span className="text-xl font-bold tracking-tight text-white uppercase font-sans">
               Hari<span className="text-emerald-500">Tva</span>
             </span>
@@ -102,10 +99,10 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO SECTION ── */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-24 flex items-center min-h-[calc(100vh-80px)]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
+      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-24 flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-center">
+        <div className="flex flex-col items-center space-y-8 w-full max-w-4xl mx-auto z-20">
           
-          <motion.div className="lg:col-span-7 space-y-8 text-center lg:text-left z-20" variants={stagger} initial="hidden" animate="show">
+          <motion.div className="space-y-8 flex flex-col items-center w-full" variants={stagger} initial="hidden" animate="show">
             <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 text-emerald-400 rounded-full text-[10px] font-semibold tracking-wider uppercase">
               <Sparkles className="w-3 h-3" /> SUSTAINABLE FUTURE IN REAL TIME
             </motion.div>
@@ -115,12 +112,12 @@ export default function LandingPage() {
               <span className="text-gradient-neon">carbon intelligence</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed mx-auto lg:mx-0 font-normal">
+            <motion.p variants={fadeUp} className="text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed mx-auto font-normal">
               An elegant ecosystem to measure, simulate, and lower your carbon impact. Integrate utility bills, run carbon forecasts, and synchronize with your personal footprint twin.
             </motion.p>
 
             {/* Premium Stats Summary Panel */}
-            <motion.div variants={fadeUp} className="glass-hud p-6 max-w-xl mx-auto lg:mx-0 text-left relative overflow-hidden">
+            <motion.div variants={fadeUp} className="glass-hud p-6 w-full max-w-xl mx-auto text-left relative overflow-hidden">
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/5">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
                   Personal Carbon Status
@@ -146,7 +143,7 @@ export default function LandingPage() {
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center pt-2">
               <Link href="/dashboard" className="btn-cyber-primary px-8 py-4 rounded-xl text-xs uppercase flex items-center gap-2">
                 Open Dashboard <ArrowRight className="w-4 h-4" />
               </Link>
@@ -156,8 +153,8 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* Earth Globe Column */}
-          <div className="lg:col-span-5 flex justify-center items-center relative py-4 z-10">
+          {/* Centered Earth Globe */}
+          <div className="flex justify-center items-center relative py-6 z-10 w-full">
             <ThreeGlobe />
           </div>
         </div>

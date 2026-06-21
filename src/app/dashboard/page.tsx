@@ -645,7 +645,6 @@ export default function DashboardPage() {
       <aside className={`w-72 border-r border-white/5 bg-[#0c0e14]/90 backdrop-blur-md flex flex-col h-screen sticky top-0 z-40 transition-all duration-300 lg:translate-x-0 ${mobileMenuOpen ? "translate-x-0 fixed" : "-translate-x-full lg:flex hidden"}`}>
         <div className="p-6 border-b border-white/5 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <Leaf className="text-emerald-500 w-5 h-5" />
             <span className="text-sm font-bold tracking-tight text-white uppercase">HARI<span className="text-emerald-500">TVA</span></span>
           </Link>
           <button onClick={() => setMobileMenuOpen(false)} className="p-1 lg:hidden text-slate-400 hover:text-white transition">
@@ -723,7 +722,6 @@ export default function DashboardPage() {
               <Menu className="w-5 h-5" />
             </button>
             <Link href="/" className="flex items-center gap-2">
-              <Leaf className="text-emerald-500 w-4 h-4" />
               <span className="text-xs font-bold tracking-tight text-white uppercase">HARI<span className="text-emerald-500">TVA</span></span>
             </Link>
           </div>
