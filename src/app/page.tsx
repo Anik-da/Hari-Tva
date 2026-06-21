@@ -195,7 +195,7 @@ export default function LandingPage() {
             <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">Adjust your lifestyles variables and preview the simulated environmental rating adjustments instantly.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full">
             {/* Control Panel */}
             <div className="lg:col-span-7 glass-hud p-6 sm:p-8 flex flex-col justify-between space-y-8">
               <div className="space-y-6">
@@ -283,7 +283,7 @@ export default function LandingPage() {
             <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">Elegant software modules solving global footprint measurement challenges.</p>
           </div>
 
-          <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto">
+          <div className="flex flex-col gap-8 w-full">
             {/* Top Row */}
             <div className="flex flex-col lg:flex-row gap-8 w-full items-stretch">
               
