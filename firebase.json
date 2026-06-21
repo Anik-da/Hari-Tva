@@ -1,0 +1,64 @@
+{
+  "hosting": {
+    "public": "out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/api/session",
+        "function": "session"
+      },
+      {
+        "source": "/api/carbon/calculate",
+        "function": "calculateCarbon"
+      },
+      {
+        "source": "/api/ai/mentor",
+        "function": "mentor"
+      },
+      {
+        "source": "/api/missions/generate",
+        "function": "generateMission"
+      },
+      {
+        "source": "/api/vision/scan",
+        "function": "scanVision"
+      },
+      {
+        "source": "/api/translator",
+        "function": "translator"
+      },
+      {
+        "source": "/api/climate/risk",
+        "function": "climateRisk"
+      },
+      {
+        "source": "/api/community/leaderboard",
+        "function": "leaderboard"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firestore-debug.log"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
