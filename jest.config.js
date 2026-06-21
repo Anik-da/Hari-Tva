@@ -9,6 +9,7 @@ const customJestConfig = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+  modulePathIgnorePatterns: ["<rootDir>/.firebase/", "<rootDir>/functions/"],
 };
 
 module.exports = createJestConfig(customJestConfig);

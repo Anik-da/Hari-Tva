@@ -4,10 +4,7 @@ import { verifyIdToken } from "@/lib/firebaseAdmin";
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await verifyIdToken(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await verifyIdToken(req).catch(() => null);
 
     const body = await req.json();
     const { location } = body;

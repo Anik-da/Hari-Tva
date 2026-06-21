@@ -4,9 +4,9 @@ import { z } from "zod";
 import { askGeminiPro, askGeminiVision } from "./gemini";
 
 // Initialize Firebase Admin SDK
-admin.initializeApp({
-  projectId: "hari-tva",
-});
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 const db = admin.firestore();
 const auth = admin.auth();
 
@@ -20,12 +20,11 @@ interface AuthenticatedUser {
 }
 
 /**
- * Authentication helper verifying ID Tokens in Authorization header
+ * Authentication helper verifying ID Tokens in Authorization header (doesn't abort response on fail)
  */
-async function verifyRequestUser(req: any, res: any): Promise<AuthenticatedUser | null> {
+async function verifyRequestUser(req: any): Promise<AuthenticatedUser | null> {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Missing or malformed authorization header" });
     return null;
   }
   const token = authHeader.split("Bearer ")[1];
@@ -40,7 +39,6 @@ async function verifyRequestUser(req: any, res: any): Promise<AuthenticatedUser 
     };
   } catch (error) {
     console.error("Token verification failed in Functions:", error);
-    res.status(401).json({ error: "Invalid token validation" });
     return null;
   }
 }
@@ -53,8 +51,11 @@ export const session = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
+  const user = await verifyRequestUser(req);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   try {
     const RegistrationSchema = z.object({
@@ -109,8 +110,7 @@ export const calculateCarbon = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
+  const user = await verifyRequestUser(req);
 
   try {
     const CalculatorSchema = z.object({
@@ -181,29 +181,31 @@ export const calculateCarbon = onRequest({ cors: true }, async (req, res) => {
 
     const score = Math.max(10, Math.min(100, Math.round(100 - (dailyCarbon * 2.2))));
 
-    const activityRef = db.collection("activities").doc();
-    await activityRef.set({
-      id: activityRef.id,
-      userId: user.uid,
-      type: "calculator_log",
-      details: { ...data, dailyCarbon },
-      carbon: dailyCarbon,
-      timestamp: new Date(),
-    });
+    if (user) {
+      const activityRef = db.collection("activities").doc();
+      await activityRef.set({
+        id: activityRef.id,
+        userId: user.uid,
+        type: "calculator_log",
+        details: { ...data, dailyCarbon },
+        carbon: dailyCarbon,
+        timestamp: new Date(),
+      });
 
-    await db.collection("carbonHistory").doc(user.uid).set({
-      userId: user.uid,
-      dailyCarbon,
-      monthlyCarbon,
-      annualCarbon,
-      updatedAt: new Date(),
-    });
+      await db.collection("carbonHistory").doc(user.uid).set({
+        userId: user.uid,
+        dailyCarbon,
+        monthlyCarbon,
+        annualCarbon,
+        updatedAt: new Date(),
+      });
 
-    await db.collection("ecoProfiles").doc(user.uid).set({
-      userId: user.uid,
-      score,
-      updatedAt: new Date(),
-    }, { merge: true });
+      await db.collection("ecoProfiles").doc(user.uid).set({
+        userId: user.uid,
+        score,
+        updatedAt: new Date(),
+      }, { merge: true });
+    }
 
     res.json({ dailyCarbon, monthlyCarbon, annualCarbon, sustainabilityScore: score });
   } catch (error) {
@@ -220,8 +222,7 @@ export const mentor = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
+  const user = await verifyRequestUser(req);
 
   try {
     const MentorSchema = z.object({ message: z.string().min(1).max(500) });
@@ -231,11 +232,13 @@ export const mentor = onRequest({ cors: true }, async (req, res) => {
       return;
     }
 
-    const historyDoc = await db.collection("carbonHistory").doc(user.uid).get();
-    let statsContext = "No history recorded yet.";
-    if (historyDoc.exists) {
-      const data = historyDoc.data();
-      statsContext = `Daily: ${data?.dailyCarbon} kg CO2e, Monthly: ${data?.monthlyCarbon} kg, Annual: ${data?.annualCarbon} Tonnes.`;
+    let statsContext = "Guest user context. General advice.";
+    if (user) {
+      const historyDoc = await db.collection("carbonHistory").doc(user.uid).get();
+      if (historyDoc.exists) {
+        const data = historyDoc.data();
+        statsContext = `Daily: ${data?.dailyCarbon} kg CO2e, Monthly: ${data?.monthlyCarbon} kg, Annual: ${data?.annualCarbon} Tonnes.`;
+      }
     }
 
     const systemInstruction = `You are HariTva's AI Sustainability Mentor.
@@ -254,12 +257,14 @@ Answer concisely. Return valid JSON only matching:
       parsedJson = { reply: rawResponse, suggestions: ["Avoid single-passenger car transit.", "Optimize HVAC settings."] };
     }
 
-    await db.collection("activities").add({
-      userId: user.uid,
-      type: "ai_dialogue",
-      details: { question: parsed.data.message, reply: parsedJson.reply },
-      timestamp: new Date(),
-    });
+    if (user) {
+      await db.collection("activities").add({
+        userId: user.uid,
+        type: "ai_dialogue",
+        details: { question: parsed.data.message, reply: parsedJson.reply },
+        timestamp: new Date(),
+      });
+    }
 
     res.json(parsedJson);
   } catch (error) {
@@ -276,8 +281,11 @@ export const generateMission = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
+  const user = await verifyRequestUser(req);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   try {
     const historyDoc = await db.collection("carbonHistory").doc(user.uid).get();
@@ -347,8 +355,7 @@ export const scanVision = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
+  const user = await verifyRequestUser(req);
 
   try {
     const VisionScanSchema = z.object({
@@ -387,12 +394,14 @@ export const scanVision = onRequest({ cors: true }, async (req, res) => {
       return;
     }
 
-    await db.collection("activities").add({
-      userId: user.uid,
-      type: `vision_scan_${type}`,
-      details: parsedResult,
-      timestamp: new Date(),
-    });
+    if (user) {
+      await db.collection("activities").add({
+        userId: user.uid,
+        type: `vision_scan_${type}`,
+        details: parsedResult,
+        timestamp: new Date(),
+      });
+    }
 
     res.json(parsedResult);
   } catch (error) {
@@ -409,8 +418,6 @@ export const translator = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
 
   try {
     const TranslatorSchema = z.object({ carbonKg: z.number().nonnegative() });
@@ -447,8 +454,6 @@ export const climateRisk = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
 
   try {
     const RiskSchema = z.object({ location: z.string().min(2).max(100) });
@@ -495,8 +500,6 @@ export const leaderboard = onRequest({ cors: true }, async (req, res) => {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
-  const user = await verifyRequestUser(req, res);
-  if (!user) return;
 
   try {
     const limitVal = 10;

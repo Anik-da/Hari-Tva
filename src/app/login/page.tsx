@@ -6,7 +6,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, onAuthStateChanged
+  signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail, onAuthStateChanged,
+  updateProfile
 } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 import { Leaf, Lock, Mail, User, AlertCircle, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
@@ -44,7 +45,14 @@ export default function LoginPage() {
     if (password !== confirmPassword) { setError("Passwords do not match."); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setLoading(true);
-    try { await createUserWithEmailAndPassword(auth, email, password); setSuccess("Registered! Redirecting..."); setTimeout(() => router.push("/dashboard"), 1500); }
+    try {
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      if (res.user) {
+        await updateProfile(res.user, { displayName: fullName });
+      }
+      setSuccess("Registered! Redirecting...");
+      setTimeout(() => router.push("/dashboard"), 1500);
+    }
     catch (err) { const e = err as { code?: string; message?: string }; setError(e.code === "auth/email-already-in-use" ? "Email already in use." : e.message || "Registration error."); }
     finally { setLoading(false); }
   };
@@ -114,25 +122,25 @@ export default function LoginPage() {
           <form onSubmit={activeTab === "signin" ? handleSignIn : handleRegister} className="space-y-5">
             {activeTab === "register" && (
               <div className="space-y-2">
-                <label className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Full Name</label>
-                <input type="text" placeholder="Aria Thorne" value={fullName} onChange={e => setFullName(e.target.value)} className="glass-input w-full" required />
+                <label htmlFor="fullName" className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Full Name</label>
+                <input id="fullName" type="text" placeholder="Aria Thorne" value={fullName} onChange={e => setFullName(e.target.value)} className="glass-input w-full" required />
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</label>
-              <input type="email" placeholder="aria@environment.org" value={email} onChange={e => setEmail(e.target.value)} className="glass-input w-full" required />
+              <label htmlFor="email" className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</label>
+              <input id="email" type="email" placeholder="aria@environment.org" value={email} onChange={e => setEmail(e.target.value)} className="glass-input w-full" required />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Password</label>
+                <label htmlFor="password" className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Password</label>
                 {activeTab === "signin" && <button type="button" onClick={() => { setShowResetModal(true); setError(null); setSuccess(null); }} className="text-xs text-slate-500 hover:text-emerald-400 transition">Forgot?</button>}
               </div>
-              <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} className="glass-input w-full" required />
+              <input id="password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} className="glass-input w-full" required />
             </div>
             {activeTab === "register" && (
               <div className="space-y-2">
-                <label className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Confirm Password</label>
-                <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="glass-input w-full" required />
+                <label htmlFor="confirmPassword" className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Confirm Password</label>
+                <input id="confirmPassword" type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="glass-input w-full" required />
               </div>
             )}
             <button type="submit" disabled={loading}
@@ -173,7 +181,10 @@ export default function LoginPage() {
             <h4 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><HelpCircle className="w-5 h-5 text-emerald-400" /> Reset Password</h4>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">Enter your email and we&apos;ll send reset instructions.</p>
             <form onSubmit={handleReset} className="space-y-4">
-              <input type="email" placeholder="aria@environment.org" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="glass-input w-full" required />
+              <div className="space-y-2">
+                <label htmlFor="resetEmail" className="text-xs text-slate-400 uppercase font-semibold tracking-wide flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email Address</label>
+                <input id="resetEmail" type="email" placeholder="aria@environment.org" value={resetEmail} onChange={e => setResetEmail(e.target.value)} className="glass-input w-full" required />
+              </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setShowResetModal(false)} className="flex-1 py-3 bg-white/5 border border-white/10 text-slate-400 text-sm font-semibold rounded-xl hover:text-white transition">Cancel</button>
                 <button type="submit" className="flex-1 py-3 bg-emerald-500 text-black text-sm font-bold rounded-xl hover:bg-emerald-450 transition">Send Link</button>

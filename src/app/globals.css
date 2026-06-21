@@ -188,6 +188,15 @@ html, body {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Subtle, Warm Grid Background */
 .grid-dots {
   background-image: 
@@ -405,28 +414,28 @@ html, body {
   /* Removed technical scanning lines */
 }
 
-/* High contrast slate text color overrides to ensure perfect visibility on dark background */
-.text-slate-300 {
+/* High contrast slate text color overrides to ensure perfect visibility on dark background (disabled in high-contrast light mode) */
+html:not(.high-contrast-mode) .text-slate-300 {
   color: #f1f5f9 !important;
 }
-.text-slate-400 {
+html:not(.high-contrast-mode) .text-slate-400 {
   color: #cbd5e1 !important;
 }
-.text-slate-450 {
+html:not(.high-contrast-mode) .text-slate-450 {
   color: #cbd5e1 !important;
 }
-.text-slate-500 {
+html:not(.high-contrast-mode) .text-slate-500 {
   color: #e2e8f0 !important;
 }
-.text-slate-550 {
+html:not(.high-contrast-mode) .text-slate-550 {
   color: #e2e8f0 !important;
 }
-.text-slate-600 {
+html:not(.high-contrast-mode) .text-slate-600 {
   color: #cbd5e1 !important;
 }
-.text-slate-700 {
+html:not(.high-contrast-mode) .text-slate-700 {
   color: #cbd5e1 !important;
 }
-.text-slate-750 {
+html:not(.high-contrast-mode) .text-slate-750 {
   color: #94a3b8 !important;
 }

@@ -54,7 +54,7 @@ const defaultChallenges: Challenge[] = [
   { id: "5", title: "Carbon Offset Champion", category: "Offset", points: 250, participants: 520, joined: false, completed: false },
 ];
 
-const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
+export const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [ecoScore, setEcoScore] = useState<number>(76);

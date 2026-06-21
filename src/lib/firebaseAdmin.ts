@@ -6,7 +6,7 @@ try {
   admin.initializeApp({
     projectId: "hari-tva",
   });
-} catch (error) {
+} catch {
   // Ignored if app is already initialized
 }
 

@@ -59,7 +59,7 @@ export async function askGeminiPro(prompt: string, systemInstruction?: string): 
     return await queryHuggingFaceText(prompt, systemInstruction);
   } catch (error) {
     console.error("Hugging Face Text API error, utilizing local mock fallback:", error);
-    return getFallbackTextResponse(prompt, systemInstruction);
+    return getFallbackTextResponse(prompt);
   }
 }
 
@@ -146,7 +146,7 @@ ${prompt}`;
 /**
  * Context-aware mock responses locally if external APIs are unreachable
  */
-function getFallbackTextResponse(prompt: string, _systemInstruction?: string): string {
+function getFallbackTextResponse(prompt: string): string {
   const p = prompt.toLowerCase();
   
   if (p.includes("mentor") || p.includes("recommendation")) {

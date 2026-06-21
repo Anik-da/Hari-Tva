@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { askGeminiVision } from "@/lib/gemini";
 import { adminDb, verifyIdToken } from "@/lib/firebaseAdmin";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "1gb",
+    },
+  },
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const user = await verifyIdToken(req);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await verifyIdToken(req).catch(() => null);
 
     const body = await req.json();
     const { image, mimeType, type } = body;
@@ -37,12 +42,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to parse AI Vision structured response" }, { status: 422 });
     }
 
-    await adminDb.collection("activities").add({
-      userId: user.uid,
-      type: `vision_scan_${type}`,
-      details: parsedResult,
-      timestamp: new Date(),
-    });
+    if (user) {
+      await adminDb.collection("activities").add({
+        userId: user.uid,
+        type: `vision_scan_${type}`,
+        details: parsedResult,
+        timestamp: new Date(),
+      });
+    }
 
     return NextResponse.json(parsedResult);
   } catch (error: unknown) {

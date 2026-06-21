@@ -10,11 +10,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap, Utensils, Trash2, Camera, FileText, AlertTriangle, Map,
   TrendingDown, Sliders, Globe, Activity, Award, CheckCircle2,
-  Trophy, Download, Mic, User, Check, ArrowLeft, Sun, Moon,
-  Leaf, LogOut, Info, Sparkles, MessageSquare, ListTodo, Flame, ChevronRight,
-  Sparkle, ShieldCheck, Heart, Compass, Menu, X, Settings
+  Trophy, Download, Mic, Check, ArrowLeft, Sun, Moon,
+  Leaf, LogOut, Sparkles, MessageSquare, Flame, ChevronRight,
+  Menu, X, Settings
 } from "lucide-react";
-import ThreeGlobe from "@/components/ThreeGlobe";
 import {
   CarbonCalculator, AISustainabilityMentor, ProductScanner, WasteSegregationAI,
   FoodImpactAnalyzer, ElectricityBillAnalyzer, ReceiptAnalyzer, ClimateRiskAnalyzer,
@@ -40,8 +39,6 @@ export default function DashboardPage() {
   const {
     ecoScore,
     dailyCarbon,
-    monthlyCarbon,
-    annualCarbon,
     highContrast,
     toggleHighContrast
   } = useDashboard();
@@ -52,7 +49,15 @@ export default function DashboardPage() {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [greeting, setGreeting] = useState("Good morning");
   const router = useRouter();
+
+  useEffect(() => {
+    const hr = new Date().getHours();
+    if (hr < 12) setGreeting("Good morning");
+    else if (hr < 17) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -238,7 +243,7 @@ export default function DashboardPage() {
           <div>
             <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">Telemetry Center</span>
             <h1 className="text-2xl font-bold text-white tracking-tight mt-1">
-              Good morning, {user?.displayName ? user.displayName.split(" ")[0] : "Eco Citizen"}
+              {greeting}, {user?.displayName ? user.displayName.split(" ")[0] : "Eco Citizen"}
             </h1>
             <p className="text-xs text-slate-400 mt-1 max-w-xl">
               Your choices today avoid 18% more carbon than last week. Your minor travel modifications and household energy savings keep you on track.
@@ -500,7 +505,14 @@ export default function DashboardPage() {
               <div className="space-y-2">
                 {missions.map(m => (
                   <div key={m.id} className="flex items-start gap-2.5 p-2 bg-white/5 rounded-lg border border-white/5">
-                    <button onClick={() => toggleMission(m.id)} className={`w-4 h-4 rounded flex items-center justify-center border transition mt-0.5 ${m.done ? "bg-emerald-500 border-emerald-600 text-black" : "border-slate-700 bg-slate-900"}`}>
+                    <button
+                      id={`mission-btn-${m.id}`}
+                      role="checkbox"
+                      aria-label={`Toggle mission: ${m.text}`}
+                      aria-checked={m.done}
+                      onClick={() => toggleMission(m.id)}
+                      className={`w-4 h-4 rounded flex items-center justify-center border transition mt-0.5 ${m.done ? "bg-emerald-500 border-emerald-600 text-black" : "border-slate-700 bg-slate-900"}`}
+                    >
                       {m.done && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </button>
                     <span className={`text-[10px] leading-tight font-medium ${m.done ? "line-through text-slate-500" : "text-slate-200"}`}>{m.text}</span>
@@ -571,32 +583,6 @@ export default function DashboardPage() {
             </table>
           </div>
         </div>
-
-        {/* AI Engine Status & Models List */}
-        <div className="glass-hud p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-indigo-400 animate-spin" style={{ animationDuration: "12s" }} />
-            </div>
-            <div>
-              <span className="text-[9px] text-slate-500 uppercase tracking-wider font-bold block">Active Pipeline Status</span>
-              <span className="text-xs font-bold text-white tracking-tight block">Hugging Face Inference Node</span>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {[
-              { name: "Qwen-2.5-7B", type: "Chat / Reasoning", active: true },
-              { name: "Qwen-2-VL", type: "Image VLM OCR", active: true },
-              { name: "BLIP-Image", type: "OCR Fallback Classifier", active: true }
-            ].map((node, idx) => (
-              <div key={idx} className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 text-[9px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-slate-200">{node.name}</span>
-                <span className="text-slate-500">({node.type})</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     );
   };
@@ -653,7 +639,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Scrollable Categories List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-none">
           {sidebarCategories.map(cat => (
             <div key={cat.title} className="space-y-2">
               <span className="text-[9px] text-slate-550 uppercase tracking-widest font-extrabold px-3">{cat.title}</span>
@@ -718,7 +704,12 @@ export default function DashboardPage() {
         {/* Mobile Header Bar */}
         <header className="sticky top-0 z-30 border-b border-white/5 bg-[#07090e]/85 backdrop-blur-md px-6 py-4 flex justify-between items-center lg:hidden">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="p-1.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white transition">
+            <button
+              id="mobile-menu-toggle-btn"
+              aria-label="Open Navigation Menu"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white transition"
+            >
               <Menu className="w-5 h-5" />
             </button>
             <Link href="/" className="flex items-center gap-2">
@@ -736,16 +727,20 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={toggleHighContrast}
+            <button
+              id="accessibility-contrast-toggle-btn"
+              aria-label="Toggle High Contrast Accessibility Mode"
+              onClick={toggleHighContrast}
               className="p-2.5 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white transition shadow-sm"
-              title="Toggle Accessibility">
+              title="Toggle Accessibility"
+            >
               {highContrast ? <Sun className="w-4 h-4 text-emerald-400" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
         {/* Main Content scroll window */}
-        <main className="flex-1 px-6 py-8 lg:px-10 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-6 py-8 lg:px-10 max-w-[1480px] w-full mx-auto">
           <AnimatePresence mode="wait">
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.15 }}>
               {renderActiveTab()}

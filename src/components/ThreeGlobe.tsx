@@ -1,24 +1,44 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect, useMemo, useContext } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
+import { DashboardContext } from "@/context/DashboardContext";
 
 // Procedurally generate high-definition realistic Earth surface texture
-function generateEarthTexture() {
+function generateEarthTexture(highContrast: boolean) {
   const canvas = document.createElement("canvas");
   canvas.width = 1024;
   canvas.height = 512;
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
 
-  // Deep slate blue/charcoal ocean base
-  ctx.fillStyle = "#091220";
+  // Deep slate blue/charcoal ocean base (or white/light-grey in light mode)
+  ctx.fillStyle = highContrast ? "#f1f5f9" : "#051124";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const drawPolygon = (points: [number, number][], fillColor: string) => {
+  // Draw technological holographic grid lines
+  ctx.strokeStyle = highContrast ? "rgba(16, 185, 129, 0.08)" : "rgba(16, 185, 129, 0.15)";
+  ctx.lineWidth = 1;
+  const gridSize = 16;
+  for (let x = 0; x < canvas.width; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  const drawPolygon = (points: [number, number][], fillColor: string, strokeColor: string) => {
     ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     points.forEach(([lon, lat], idx) => {
       // Longitude: -180 to 180 -> 0 to canvas.width
@@ -30,7 +50,12 @@ function generateEarthTexture() {
     });
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
   };
+
+  // Colored continents setup matching the design theme
+  const fillCol = highContrast ? "rgba(5, 150, 105, 0.18)" : "#10b981";
+  const strokeCol = highContrast ? "#059669" : "#10b981";
 
   // Real Continent Polygons (approximate high-fidelity paths)
   const northAmerica: [number, number][] = [
@@ -92,33 +117,22 @@ function generateEarthTexture() {
   ];
 
   // Draw base green continents
-  drawPolygon(northAmerica, "#15803d");
-  drawPolygon(southAmerica, "#15803d");
-  drawPolygon(africa, "#166534");
-  drawPolygon(eurasia, "#15803d");
-  drawPolygon(australia, "#854d0e"); // Naturally drier/sandy
+  drawPolygon(northAmerica, fillCol, strokeCol);
+  drawPolygon(southAmerica, fillCol, strokeCol);
+  drawPolygon(africa, fillCol, strokeCol);
+  drawPolygon(eurasia, fillCol, strokeCol);
+  drawPolygon(australia, fillCol, strokeCol);
 
   // Draw polar ice caps
-  drawPolygon(greenland, "#f8fafc");
-  drawPolygon(antarctica, "#ffffff");
+  drawPolygon(greenland, highContrast ? "rgba(100,116,139,0.15)" : "rgba(248,250,252,0.3)", strokeCol);
+  drawPolygon(antarctica, highContrast ? "rgba(100,116,139,0.15)" : "rgba(255,255,255,0.3)", strokeCol);
 
   // Draw minor landmasses
-  drawPolygon(madagascar, "#166534");
-  drawPolygon(japan, "#15803d");
-
-  // Draw realistic dry desert overlays (Sahara & Middle East)
-  // Draw realistic dry desert overlays (Sahara & Middle East)
-  const sahara: [number, number][] = [
-    [-10, 30], [30, 30], [32, 22], [35, 15], [10, 15], [-12, 16]
-  ];
-  const arabiaGobi: [number, number][] = [
-    [35, 30], [45, 15], [55, 15], [60, 25], [75, 28], [90, 42], [105, 40], [80, 35], [50, 38]
-  ];
-  drawPolygon(sahara, "#a16207");
-  drawPolygon(arabiaGobi, "#a16207");
+  drawPolygon(madagascar, fillCol, strokeCol);
+  drawPolygon(japan, fillCol, strokeCol);
 
   // Draw fluffy cloud clusters (fractal weather patterns) directly on the Earth surface
-  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.fillStyle = highContrast ? "rgba(5, 150, 105, 0.08)" : "rgba(255, 255, 255, 0.35)";
   for (let i = 0; i < 20; i++) {
     const cx = Math.random() * canvas.width;
     const cy = 100 + Math.random() * 312; // Concentrate clouds in temperate weather bands
@@ -137,46 +151,54 @@ function generateEarthTexture() {
 }
 
 // Realistic Earth Globe component
-function EarthGlobe() {
+function EarthGlobe({ highContrast }: { highContrast: boolean }) {
   const globeRef = useRef<THREE.Mesh>(null);
   const [earthTexture, setEarthTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
-    // 1. Generate fallback texture immediately to avoid blank/white frame
-    const earthCanvas = generateEarthTexture();
-    const fallbackTexture = new THREE.CanvasTexture(earthCanvas);
-    setEarthTexture(fallbackTexture);
+    // Generate fallback texture immediately to avoid blank/white frame
+    const earthCanvas = generateEarthTexture(highContrast);
+    const canvasTexture = new THREE.CanvasTexture(earthCanvas);
+    canvasTexture.needsUpdate = true;
+    setEarthTexture(canvasTexture);
 
-    // 2. Try loading satellite Earth texture from multiple CDN sources
-    const loader = new THREE.TextureLoader();
-    loader.crossOrigin = "anonymous";
+    if (!highContrast) {
+      // Try loading satellite Earth texture from multiple CDN sources
+      const loader = new THREE.TextureLoader();
+      loader.crossOrigin = "anonymous";
 
-    const textureUrls = [
-      "https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg",
-      "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg",
-    ];
+      const cacheBuster = `?t=${Date.now()}`;
+      const textureUrls = [
+        `https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Land_ocean_ice_2048.jpg/1024px-Land_ocean_ice_2048.jpg${cacheBuster}`,
+        `https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg${cacheBuster}`,
+      ];
 
-    let loaded = false;
-    textureUrls.forEach((url) => {
-      if (loaded) return;
-      loader.load(
-        url,
-        (texture) => {
-          if (!loaded) {
-            loaded = true;
-            setEarthTexture(texture);
-          }
-        },
-        undefined,
-        () => { /* silently try next URL */ }
-      );
-    });
-  }, []);
+      let loaded = false;
+      textureUrls.forEach((url) => {
+        if (loaded) return;
+        loader.load(
+          url,
+          (texture) => {
+            if (!loaded) {
+              loaded = true;
+              texture.colorSpace = THREE.SRGBColorSpace;
+              setEarthTexture(texture);
+            }
+          },
+          undefined,
+          () => { /* silently try next URL */ }
+        );
+      });
+    }
+  }, [highContrast]);
 
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
     if (globeRef.current) {
       globeRef.current.rotation.y = time * 0.035;
+      // Organic heartbeat scale pulse
+      const pulse = 1.0 + Math.sin(time * 0.6) * 0.015;
+      globeRef.current.scale.set(pulse, pulse, pulse);
     }
   });
 
@@ -186,9 +208,10 @@ function EarthGlobe() {
       <mesh ref={globeRef} castShadow receiveShadow>
         <sphereGeometry args={[2.2, 64, 64]} />
         <meshStandardMaterial
+          key={earthTexture?.uuid || "none"}
           map={earthTexture || undefined}
           color={earthTexture ? "#ffffff" : "#0a1628"}
-          roughness={0.65}
+          roughness={0.5}
           metalness={0.15}
         />
       </mesh>
@@ -197,16 +220,26 @@ function EarthGlobe() {
 }
 
 // Glowing atmospheric outer shield
-function AtmosphereGlow() {
+function AtmosphereGlow({ highContrast }: { highContrast: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime();
+    if (meshRef.current) {
+      // Counter-rotate atmospheric layers and pulse
+      meshRef.current.rotation.y = -time * 0.015;
+      const pulse = 1.0 + Math.cos(time * 0.6) * 0.012;
+      meshRef.current.scale.set(pulse, pulse, pulse);
+    }
+  });
 
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[2.26, 32, 32]} />
       <meshBasicMaterial
-        color="#10b981"
+        color={highContrast ? "#059669" : "#10b981"}
         transparent
-        opacity={0.065}
+        opacity={highContrast ? 0.04 : 0.12}
         side={THREE.BackSide}
       />
     </mesh>
@@ -214,7 +247,7 @@ function AtmosphereGlow() {
 }
 
 // Ambient drifting star background
-function FloatingParticles() {
+function FloatingParticles({ highContrast }: { highContrast: boolean }) {
   const pointsRef = useRef<THREE.Points>(null);
   const count = 150;
   
@@ -241,11 +274,11 @@ function FloatingParticles() {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color="#ffffff"
+        color={highContrast ? "#059669" : "#ffffff"}
         size={0.025}
         sizeAttenuation
         transparent
-        opacity={0.35}
+        opacity={highContrast ? 0.15 : 0.45}
         depthWrite={false}
       />
     </points>
@@ -273,6 +306,9 @@ function SvgGlobeFallback() {
 export default function ThreeGlobe() {
   const [useFallback, setUseFallback] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const context = useContext(DashboardContext);
+  const highContrast = context ? context.highContrast : false;
 
   useEffect(() => {
     setMounted(true);
@@ -305,18 +341,18 @@ export default function ThreeGlobe() {
   return (
     <div className="relative w-full h-[380px] sm:h-[480px]">
       <Canvas camera={{ position: [0, 0, 5], fov: 60 }} shadows>
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={highContrast ? 0.8 : 0.45} />
         {/* Directional Sunlight */}
         <directionalLight
           position={[5, 3, 5]}
-          intensity={1.5}
+          intensity={highContrast ? 1.0 : 1.5}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
-        <EarthGlobe />
-        <AtmosphereGlow />
-        <FloatingParticles />
+        <EarthGlobe highContrast={highContrast} />
+        <AtmosphereGlow highContrast={highContrast} />
+        <FloatingParticles highContrast={highContrast} />
         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
       </Canvas>
     </div>
