@@ -142,24 +142,35 @@ function EarthGlobe() {
   const [earthTexture, setEarthTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
-    // 1. Generate fallback texture immediately to avoid blank frame
+    // 1. Generate fallback texture immediately to avoid blank/white frame
     const earthCanvas = generateEarthTexture();
     const fallbackTexture = new THREE.CanvasTexture(earthCanvas);
     setEarthTexture(fallbackTexture);
 
-    // 2. Load realistic satellite Earth texture from public CDN
+    // 2. Try loading satellite Earth texture from multiple CDN sources
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = "anonymous";
-    loader.load(
+
+    const textureUrls = [
+      "https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg",
       "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg",
-      (texture) => {
-        setEarthTexture(texture);
-      },
-      undefined,
-      (err) => {
-        console.warn("Failed to load satellite Earth texture; using high-contrast procedural canvas fallback.", err);
-      }
-    );
+    ];
+
+    let loaded = false;
+    textureUrls.forEach((url) => {
+      if (loaded) return;
+      loader.load(
+        url,
+        (texture) => {
+          if (!loaded) {
+            loaded = true;
+            setEarthTexture(texture);
+          }
+        },
+        undefined,
+        () => { /* silently try next URL */ }
+      );
+    });
   }, []);
 
   useFrame(({ clock }) => {
@@ -176,6 +187,7 @@ function EarthGlobe() {
         <sphereGeometry args={[2.2, 64, 64]} />
         <meshStandardMaterial
           map={earthTexture || undefined}
+          color={earthTexture ? "#ffffff" : "#0a1628"}
           roughness={0.65}
           metalness={0.15}
         />
